@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Star, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { StatsSection } from "@/components/stats-section";
 
 //esta es la pagina principal
 export default function Home() {
@@ -122,6 +123,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <StatsSection />
+
+      {/* Seccion hecho por nosotros */}
     </main>
   );
 }
