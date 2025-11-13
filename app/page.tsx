@@ -3,6 +3,7 @@ import { Star, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { StatsSection } from "@/components/stats-section";
+import { ProductCard } from "@/components/product-card";
 
 //esta es la pagina principal
 export default function Home() {
@@ -127,6 +128,33 @@ export default function Home() {
       <StatsSection />
 
       {/* Seccion hecho por nosotros */}
+      <section className="py-2 md:py-24">
+        <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Hecho por Nosotros, Perfeccionado Por Ti
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ProductCard
+              name="Camisetas Esencial"
+              price={130.466}
+              imageSrc="/placeholder.svg?height=300&width=300"
+              href="/producto/camiseta-ensecial-1"
+            />
+            <ProductCard
+              name="Camisetas Esencial"
+              price={130.466}
+              imageSrc="/placeholder.svg?height=300&width=300"
+              href="/producto/camiseta-ensecial-1"
+            />
+            <ProductCard
+              name="Camisetas Esencial"
+              price={130.466}
+              imageSrc="/placeholder.svg?height=300&width=300"
+              href="/producto/camiseta-ensecial-1"
+            />
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
