@@ -4,6 +4,9 @@ import { Star, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatsSection } from "@/components/stats-section";
 import { ProductCard } from "@/components/product-card";
+import { ReviewCard } from "@/components/review-card";
+import { FeaturedInSection } from "@/components/featured-in-section";
+import { CommitmentSection } from "@/components/commitment-section";
 
 //esta es la pagina principal
 export default function Home() {
@@ -142,15 +145,52 @@ export default function Home() {
             />
             <ProductCard
               name="Camisetas Esencial"
-              price={130.466}
+              price={100.0}
               imageSrc="/placeholder.svg?height=300&width=300"
               href="/producto/camiseta-ensecial-1"
             />
             <ProductCard
               name="Camisetas Esencial"
-              price={130.466}
+              price={99.0}
               imageSrc="/placeholder.svg?height=300&width=300"
               href="/producto/camiseta-ensecial-1"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Prodtos destacados */}
+      <FeaturedInSection />
+
+      {/* Seccion de compromiso */}
+      <CommitmentSection />
+
+      {/*Sección de reseñas */}
+      <section className="py-12 md:py-24 bg-gray-50">
+        <div className="container px-4 md:px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Reseñas de nuestros clientes satisfechos
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ReviewCard
+              name="María G."
+              comment="Las camisetas son increíblemente suaves y la calidad es excepcional. ¡Definitivamente compraré más!"
+              rating={5}
+            />
+            <ReviewCard
+              name="Carlos R."
+              comment="Los jeans son perfectos, tanto en ajuste como en durabilidad. Muy contento con mi compra."
+              rating={5}
+            />
+            <ReviewCard
+              name="Laura M."
+              comment="El servicio al cliente es excelente y la ropa es de muy buena calidad. Recomiendo totalmente."
+              rating={4}
+            />
+            <ReviewCard
+              name="David S."
+              comment="Las sudaderas son cómodas y el envío fue rápido. Volveré a comprar pronto."
+              rating={4}
             />
           </div>
         </div>
