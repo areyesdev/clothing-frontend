@@ -9,8 +9,17 @@ import { FeaturedInSection } from "@/components/featured-in-section";
 import { CommitmentSection } from "@/components/commitment-section";
 import { FeaturedProduct } from "@/components/featured-product";
 
+import { getProducts, getStrapiMedia } from "@/lib/strapi";
+import { get } from "http";
+
 //esta es la pagina principal
-export default function Home() {
+export default async function Home() {
+  // Obtener productos destacados de strapi
+  const { data: featuredProducts } = await getProducts({
+    featured: true,
+    limit: 6,
+  });
+
   return (
     <main className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -54,12 +63,13 @@ export default function Home() {
 
             {/* Imagen principal */}
             <div className="md:col-span-6 relative">
+              {/* Imagen de producto destacado */}
               <Image
-                src="/placeholder.svg?height=600&width=800"
-                width={800}
-                height={600}
-                alt="Colección destacada"
-                className="rounded-lg object-cover w-full"
+                src={getStrapiMedia(featuredProducts[0].image?.url)}
+                alt={featuredProducts[0].name}
+                width={600}
+                height={400}
+                className="rounded-lg object-cover"
               />
             </div>
 
@@ -68,7 +78,7 @@ export default function Home() {
               {/* producto 1 */}
               <div className="flex items-center gap-4 border rounded-lg p-3">
                 <Image
-                  src="/placeholder.svg?height=100&width=100&text=1"
+                  src={getStrapiMedia(featuredProducts[2].image?.url)}
                   width={100}
                   height={100}
                   alt="Camisetas premium"
@@ -138,24 +148,15 @@ export default function Home() {
             Hecho por Nosotros, Perfeccionado Por Ti
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ProductCard
-              name="Camisetas Esencial"
-              price={130.466}
-              imageSrc="/placeholder.svg?height=300&width=300"
-              href="/producto/camiseta-ensecial-1"
-            />
-            <ProductCard
-              name="Camisetas Esencial"
-              price={100.0}
-              imageSrc="/placeholder.svg?height=300&width=300"
-              href="/producto/camiseta-ensecial-1"
-            />
-            <ProductCard
-              name="Camisetas Esencial"
-              price={99.0}
-              imageSrc="/placeholder.svg?height=300&width=300"
-              href="/producto/camiseta-ensecial-1"
-            />
+            {featuredProducts.slice(0, 3).map((product) => (
+              <ProductCard
+                key={product.id}
+                name={product.name}
+                price={product.price}
+                imageSrc={getStrapiMedia(product.image?.url)}
+                href={`/producto/${product.slug}`}
+              />
+            ))}
           </div>
         </div>
       </section>
