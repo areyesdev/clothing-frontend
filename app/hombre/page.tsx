@@ -19,9 +19,13 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ProductCard } from "@/components/product-card";
+import { getProducts, getStrapiMedia } from "@/lib/strapi";
 
 // Página de categoría Hombre
-export default function MenPage() {
+export default async function MenPage() {
+  //Obtener los datos de strapi
+  const { data: products, meta } = await getProducts({ category: "hombre" });
+
   // En una implementación real, estos datos vendrían de Strapi
   const categories = [
     { name: "Camisetas", count: 42 },
@@ -50,87 +54,12 @@ export default function MenPage() {
     },
   ];
 
-  const products = [
-    {
-      id: 1,
-      name: "Camiseta Premium",
-      price: 29.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=1",
-    },
-    {
-      id: 2,
-      name: "Jeans Clásicos",
-      price: 59.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=2",
-    },
-    {
-      id: 3,
-      name: "Sudadera Comfort",
-      price: 49.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=3",
-    },
-    {
-      id: 4,
-      name: "Chaqueta Ligera",
-      price: 79.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=4",
-    },
-    {
-      id: 5,
-      name: "Polo Casual",
-      price: 34.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=5",
-    },
-    {
-      id: 6,
-      name: "Pantalón Chino",
-      price: 44.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=6",
-    },
-    {
-      id: 7,
-      name: "Camiseta Estampada",
-      price: 24.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=7",
-    },
-    {
-      id: 8,
-      name: "Bermudas",
-      price: 39.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=8",
-    },
-    {
-      id: 9,
-      name: "Camisa Oxford",
-      price: 54.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=9",
-    },
-    {
-      id: 10,
-      name: "Jersey de Punto",
-      price: 64.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=10",
-    },
-    {
-      id: 11,
-      name: "Camiseta Básica",
-      price: 19.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=11",
-    },
-    {
-      id: 12,
-      name: "Pantalón Deportivo",
-      price: 44.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=12",
-    },
-  ];
-
   return (
     <main className="flex flex-col min-h-screen">
       {/* Banner de categoría */}
       <section className="relative h-[200px] md:h-[300px]">
         <Image
-          src="/placeholder.svg?height=300&width=1200&text=Moda+Hombre"
+          src={getStrapiMedia(products[2].image?.url) || "/placeholder.jpg"}
           alt="Moda Hombre"
           fill
           className="object-cover"
@@ -226,7 +155,7 @@ export default function MenPage() {
               <div className="flex items-center">
                 <h2 className="text-xl font-bold">Productos</h2>
                 <span className="ml-2 text-sm text-gray-500">
-                  ({products.length} artículos)
+                  ({meta.pagination.total} artículos)
                 </span>
               </div>
 
@@ -277,42 +206,50 @@ export default function MenPage() {
                   key={product.id}
                   name={product.name}
                   price={product.price}
-                  imageSrc={product.imageSrc}
-                  href={`/producto/camiseta-premium-${product.id}`}
+                  originalPrice={product.originalPrice}
+                  imageSrc={getStrapiMedia(product.image?.url)}
+                  href={`/producto/${product.slug}`}
                 />
               ))}
             </div>
 
+            {/* Si no hay productos, mostrar mensaje */}
+            {products.length === 50 && (
+              <div className="text-center py-16">
+                <h3 className="text-xl font-medium mb-2">
+                  No se encontraron productos
+                </h3>
+                <p className="text-gray-500">
+                  Intenta ajustar tus filtros o vuelve más tarde.
+                </p>
+              </div>
+            )}
+
             {/* Paginación */}
-            <div className="flex justify-center mt-12">
-              <nav className="flex items-center gap-1">
-                <Button variant="outline" size="icon" disabled>
-                  <ChevronRight className="h-4 w-4 rotate-180" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-primary text-primary-foreground"
-                >
-                  1
-                </Button>
-                <Button variant="outline" size="sm">
-                  2
-                </Button>
-                <Button variant="outline" size="sm">
-                  3
-                </Button>
-                <Button variant="outline" size="sm">
-                  4
-                </Button>
-                <Button variant="outline" size="sm">
-                  5
-                </Button>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </nav>
-            </div>
+            {meta.pagination.pageCount > 1 && (
+              <div className="flex justify-center mt-12">
+                <nav className="flex items-center gap-1">
+                  <Button variant="outline" size="icon" disabled>
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                  </Button>
+                  {Array.from({ length: meta.pagination.pageCount }, (_, i) => (
+                    <Button
+                      key={i + 1}
+                      variant="outline"
+                      size="sm"
+                      className={
+                        i === 0 ? "bg-primary text-primary-foreground" : ""
+                      }
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button variant="outline" size="icon">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>

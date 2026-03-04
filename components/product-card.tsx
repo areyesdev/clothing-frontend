@@ -2,21 +2,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
+import { formatCOP, formatDiscount } from "@/lib/format";
 
 export function ProductCard({
   name,
   price,
+  originalPrice,
   imageSrc,
   href,
 }: {
   name: string;
   price: number;
+  originalPrice?: number | null;
   imageSrc: string;
   href?: string;
 }) {
+  const hasDiscount = originalPrice && originalPrice > price;
+  const discountText = hasDiscount
+    ? formatDiscount(originalPrice, price)
+    : null;
+
   const CardContent = () => (
     <div className="group relative overflow-hidden rounded-lg border">
       <div className="absolute inset-0 z-10" aria-hidden="true"></div>
+      {discountText && (
+        <span className="absolute top-2 left-2 z-20 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+          {discountText}
+        </span>
+      )}
       <div className="relative aspect-square overflow-hidden">
         <Image
           src={imageSrc || "/placeholder.svg"}
@@ -36,7 +49,14 @@ export function ProductCard({
       </div>
       <div className="p-4">
         <h3 className="font-medium">{name}</h3>
-        <p className="font-bold mt-1">${price.toFixed(2)}</p>
+        <div className="flex items-center gap-2 mt-1">
+          <p className="font-bold">{formatCOP(price)}</p>
+          {hasDiscount && (
+            <p className="text-sm text-gray-500 line-through">
+              {formatCOP(originalPrice)}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -19,9 +19,14 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ProductCard } from "@/components/product-card";
+import { getProducts, getStrapiMedia } from "@/lib/strapi";
 
 // Página de categoría Accesorios
-export default function AccessoriesPage() {
+export default async function AccessoriesPage() {
+  //Obtener los productos de strapi
+  const { data: products, meta } = await getProducts({
+    category: "accesorios",
+  });
   // En una implementación real, estos datos vendrían de Strapi
   const categories = [
     { name: "Bolsos", count: 24 },
@@ -46,87 +51,13 @@ export default function AccessoriesPage() {
     },
   ];
 
-  const products = [
-    {
-      id: 1,
-      name: "Bolso Tote",
-      price: 49.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A1",
-    },
-    {
-      id: 2,
-      name: "Cinturón Clásico",
-      price: 29.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A2",
-    },
-    {
-      id: 3,
-      name: "Gorra Deportiva",
-      price: 19.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A3",
-    },
-    {
-      id: 4,
-      name: "Gafas de Sol",
-      price: 39.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A4",
-    },
-    {
-      id: 5,
-      name: "Collar Minimalista",
-      price: 24.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A5",
-    },
-    {
-      id: 6,
-      name: "Pulsera Ajustable",
-      price: 14.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A6",
-    },
-    {
-      id: 7,
-      name: "Mochila Urbana",
-      price: 59.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A7",
-    },
-    {
-      id: 8,
-      name: "Bufanda Suave",
-      price: 22.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A8",
-    },
-    {
-      id: 9,
-      name: "Sombrero Panamá",
-      price: 34.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A9",
-    },
-    {
-      id: 10,
-      name: "Reloj Minimalista",
-      price: 79.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A10",
-    },
-    {
-      id: 11,
-      name: "Cartera Slim",
-      price: 29.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A11",
-    },
-    {
-      id: 12,
-      name: "Pendientes Geométricos",
-      price: 19.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=A12",
-    },
-  ];
-
   return (
     <main className="flex flex-col min-h-screen">
       {/* Banner de categoría */}
-      <section className="relative h-[200px] md:h-[300px]">
+      <section className="relative h-[400px] md:h-[300px]">
+        {/* Mostrar un banner de accesorios */}
         <Image
-          src="/placeholder.svg?height=300&width=1200&text=Accesorios"
+          src={getStrapiMedia(products[1].image?.url) || "/placeholder.jpg"}
           alt="Accesorios"
           fill
           className="object-cover"
@@ -222,7 +153,7 @@ export default function AccessoriesPage() {
               <div className="flex items-center">
                 <h2 className="text-xl font-bold">Productos</h2>
                 <span className="ml-2 text-sm text-gray-500">
-                  ({products.length} artículos)
+                  ({meta.pagination.total} artículos)
                 </span>
               </div>
 
@@ -273,36 +204,38 @@ export default function AccessoriesPage() {
                   key={product.id}
                   name={product.name}
                   price={product.price}
-                  imageSrc={product.imageSrc}
-                  href={`/producto/accesorio-${product.id}`}
+                  originalPrice={product.originalPrice}
+                  imageSrc={getStrapiMedia(product.image?.url)}
+                  href={`/producto/${product.slug}`}
                 />
               ))}
             </div>
 
             {/* Paginación */}
-            <div className="flex justify-center mt-12">
-              <nav className="flex items-center gap-1">
-                <Button variant="outline" size="icon" disabled>
-                  <ChevronRight className="h-4 w-4 rotate-180" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-primary text-primary-foreground"
-                >
-                  1
-                </Button>
-                <Button variant="outline" size="sm">
-                  2
-                </Button>
-                <Button variant="outline" size="sm">
-                  3
-                </Button>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </nav>
-            </div>
+            {meta.pagination.pageCount > 1 && (
+              <div className="flex justify-center mt-12">
+                <nav className="flex items-center gap-1">
+                  <Button variant="outline" size="icon" disabled>
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                  </Button>
+                  {Array.from({ length: meta.pagination.pageCount }, (_, i) => (
+                    <Button
+                      key={i + 1}
+                      variant="outline"
+                      size="sm"
+                      className={
+                        i === 0 ? "bg-primary text-primary-foreground" : ""
+                      }
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button variant="outline" size="icon">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>

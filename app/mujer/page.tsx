@@ -20,8 +20,12 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ProductCard } from "@/components/product-card";
 
+import { getProducts, getStrapiMedia } from "@/lib/strapi";
+
 // Página de categoría Mujer
-export default function WomenPage() {
+export default async function WomenPage() {
+  //Obtener los datos de strapi
+  const { data: products, meta } = await getProducts({ category: "mujer" });
   // En una implementación real, estos datos vendrían de Strapi
   const categories = [
     { name: "Camisetas", count: 38 },
@@ -50,87 +54,12 @@ export default function WomenPage() {
     },
   ];
 
-  const products = [
-    {
-      id: 1,
-      name: "Camiseta Básica",
-      price: 19.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W1",
-    },
-    {
-      id: 2,
-      name: "Vestido Casual",
-      price: 49.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W2",
-    },
-    {
-      id: 3,
-      name: "Jeans Skinny",
-      price: 59.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W3",
-    },
-    {
-      id: 4,
-      name: "Blusa Elegante",
-      price: 39.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W4",
-    },
-    {
-      id: 5,
-      name: "Falda Midi",
-      price: 34.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W5",
-    },
-    {
-      id: 6,
-      name: "Pantalón Palazzo",
-      price: 44.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W6",
-    },
-    {
-      id: 7,
-      name: "Top Crop",
-      price: 24.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W7",
-    },
-    {
-      id: 8,
-      name: "Vestido Largo",
-      price: 69.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W8",
-    },
-    {
-      id: 9,
-      name: "Chaqueta Denim",
-      price: 54.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W9",
-    },
-    {
-      id: 10,
-      name: "Suéter Oversize",
-      price: 44.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W10",
-    },
-    {
-      id: 11,
-      name: "Leggings",
-      price: 29.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W11",
-    },
-    {
-      id: 12,
-      name: "Cárdigan",
-      price: 49.99,
-      imageSrc: "/placeholder.svg?height=300&width=300&text=W12",
-    },
-  ];
-
   return (
     <main className="flex flex-col min-h-screen">
       {/* Banner de categoría */}
       <section className="relative h-[200px] md:h-[300px]">
         <Image
-          src="/placeholder.svg?height=300&width=1200&text=Moda+Mujer"
+          src={getStrapiMedia(products[2].image?.url) || "/placeholder.jpg"}
           alt="Moda Mujer"
           fill
           className="object-cover"
@@ -277,42 +206,46 @@ export default function WomenPage() {
                   key={product.id}
                   name={product.name}
                   price={product.price}
-                  imageSrc={product.imageSrc}
-                  href={`/producto/vestido-casual-${product.id}`}
+                  originalPrice={product.originalPrice}
+                  imageSrc={getStrapiMedia(product.image?.url)}
+                  href={`/producto/${product.slug}`}
                 />
               ))}
             </div>
+            {/* Mensaje si no hay productos */}
+            {products.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-500">
+                  No hay productos disponibles en esta categoría.
+                </p>
+              </div>
+            )}
 
             {/* Paginación */}
-            <div className="flex justify-center mt-12">
-              <nav className="flex items-center gap-1">
-                <Button variant="outline" size="icon" disabled>
-                  <ChevronRight className="h-4 w-4 rotate-180" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-primary text-primary-foreground"
-                >
-                  1
-                </Button>
-                <Button variant="outline" size="sm">
-                  2
-                </Button>
-                <Button variant="outline" size="sm">
-                  3
-                </Button>
-                <Button variant="outline" size="sm">
-                  4
-                </Button>
-                <Button variant="outline" size="sm">
-                  5
-                </Button>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </nav>
-            </div>
+            {meta.pagination.pageCount > 1 && (
+              <div className="flex justify-center mt-12">
+                <nav className="flex items-center gap-1">
+                  <Button variant="outline" size="icon" disabled>
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                  </Button>
+                  {Array.from({ length: meta.pagination.pageCount }, (_, i) => (
+                    <Button
+                      key={i + 1}
+                      variant="outline"
+                      size="sm"
+                      className={
+                        i === 0 ? "bg-primary text-primary-foreground" : ""
+                      }
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button variant="outline" size="icon">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -8,25 +8,28 @@ import { ReviewCard } from "@/components/review-card";
 import { FeaturedInSection } from "@/components/featured-in-section";
 import { CommitmentSection } from "@/components/commitment-section";
 import { FeaturedProduct } from "@/components/featured-product";
-
 import { getProducts, getStrapiMedia } from "@/lib/strapi";
-import { get } from "http";
+import { formatCOP } from "@/lib/format";
+import Link from "next/link";
 
-//esta es la pagina principal
+// Página principal
 export default async function Home() {
-  // Obtener productos destacados de strapi
+  // Obtener productos destacados de Strapi
   const { data: featuredProducts } = await getProducts({
     featured: true,
     limit: 6,
   });
 
+  // Obtener algunos productos para el hero
+  const { data: heroProducts } = await getProducts({ limit: 2 });
+
   return (
-    <main className="flex flex-col min-h-screen">
+    <main className="flex flex-col min-h-screen w-full">
       {/* Hero Section */}
       <section className="py-12 md:py-16">
         <div className="container px-4 md:px-16">
           <div className="flex flex-col items-center text-center mb-8">
-            <h1 className="text-3xl font-bold tracking-tight sm:texxt-4xl md:text-5xl">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Ropa personalizada Diseñada Para{" "}
               <span className="bg-yellow-300 px-1">Tu Estilo</span>
             </h1>
@@ -63,76 +66,57 @@ export default async function Home() {
 
             {/* Imagen principal */}
             <div className="md:col-span-6 relative">
-              {/* Imagen de producto destacado */}
               <Image
-                src={getStrapiMedia(featuredProducts[0].image?.url)}
-                alt={featuredProducts[0].name}
-                width={600}
-                height={400}
-                className="rounded-lg object-cover"
+                src="/placeholder.svg?height=600&width=800"
+                width={800}
+                height={600}
+                alt="Colección destacada"
+                className="rounded-lg object-cover w-full"
               />
             </div>
 
-            {/* Opciones de preductos */}
+            {/* Opciones de productos */}
             <div className="md:col-span-5 space-y-4">
-              {/* producto 1 */}
-              <div className="flex items-center gap-4 border rounded-lg p-3">
-                <Image
-                  src={getStrapiMedia(featuredProducts[2].image?.url)}
-                  width={100}
-                  height={100}
-                  alt="Camisetas premium"
-                  className="rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium">Camisetas Premium</h3>
-                  <div className="flex items-center mt-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-amber-400 text-amber-400"
-                      />
-                    ))}
+              {heroProducts.slice(0, 2).map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/producto/${product.slug}`}
+                  className="flex items-center gap-4 border rounded-lg p-3 hover:border-gray-400 transition-colors"
+                >
+                  <Image
+                    src={getStrapiMedia(product.image?.url)}
+                    width={100}
+                    height={100}
+                    alt={product.name}
+                    className="rounded-full object-cover w-[100px] h-[100px]"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium">{product.name}</h3>
+                    <div className="flex items-center mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-amber-400 text-amber-400"
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold">$130.000COP</p>
-                </div>
-              </div>
-
-              {/* producto 2 */}
-              <div className="flex items-center gap-4 border rounded-lg p-3">
-                <Image
-                  src="/placeholder.svg?height=100&width=100&text=1"
-                  width={100}
-                  height={100}
-                  alt="Sudaderas Premium"
-                  className="rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <h3 className="font-medium">Sudaderas Premium</h3>
-                  <div className="flex items-center mt-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-amber-400 text-amber-400"
-                      />
-                    ))}
+                  <div className="text-right">
+                    <p className="font-bold">{formatCOP(product.price)}</p>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold">$150.000COP</p>
-                </div>
-              </div>
+                </Link>
+              ))}
 
-              {/* Bóton de compra */}
+              {/* Botón de compra */}
               <div className="flex justify-end mt-6">
-                <Button className="rounded-full px-6 bg-black text-white hover:bg-gray-900 flex items-center gap-2">
-                  Ver colección
-                  <div>
-                    <ChevronRight className="w-4 h-4 text-white" />
-                  </div>
-                </Button>
+                <Link href="/hombre">
+                  <Button className="rounded-full px-6 bg-black text-white hover:bg-gray-900 flex items-center gap-2">
+                    Ver colección
+                    <div>
+                      <ChevronRight className="w-4 h-4 text-white" />
+                    </div>
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -141,7 +125,7 @@ export default async function Home() {
 
       <StatsSection />
 
-      {/* Seccion hecho por nosotros */}
+      {/* Sección hecho por nosotros */}
       <section className="py-2 md:py-24">
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -153,6 +137,7 @@ export default async function Home() {
                 key={product.id}
                 name={product.name}
                 price={product.price}
+                originalPrice={product.originalPrice}
                 imageSrc={getStrapiMedia(product.image?.url)}
                 href={`/producto/${product.slug}`}
               />
@@ -161,14 +146,14 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Prodtos destacados */}
+      {/* Productos destacados */}
       <FeaturedInSection />
 
-      {/* Seccion de compromiso */}
+      {/* Sección de compromiso */}
       <CommitmentSection />
 
-      {/*Sección de reseñas */}
-      <section className="py-12 md:py-24 bg-gray-50">
+      {/* Sección de reseñas */}
+      <section className="py-12 md:py-24 bg-gray-50 w-full ">
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">
             Reseñas de nuestros clientes satisfechos
@@ -198,32 +183,50 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* detalles de productos destacados */}
-      <FeaturedProduct
-        title="Camiseta Signature"
-        description="Nuestra camiseta insignia, hecha con algodón orgánico de la más alta calidad. Diseñada para durar y mantener su forma y color lavado tras lavado."
-        price={34.99}
-        salePrice={29.99}
-        features={[
-          "100% algodón orgánico certificado",
-          "Teñido con tintes naturales",
-          "Disponible en 5 colores",
-        ]}
-      />
-      <FeaturedProduct
-        title="Jeans Premium"
-        description="Nuestros jeans premium combinan estilo clásico con tecnología moderna. El denim elástico proporciona comodidad durante todo el día sin perder su forma."
-        price={79.99}
-        salePrice={59.99}
-        features={[
-          "Denim sostenible de alta calidad",
-          "Corte moderno y cómodo",
-          "Disponible en varios lavados",
-        ]}
-        reversed
-      />
+      {/* Detalles de productos destacados */}
+      {featuredProducts.length >= 2 && (
+        <>
+          <FeaturedProduct
+            title={featuredProducts[0].name}
+            description={
+              featuredProducts[0].description ||
+              "Producto de alta calidad confeccionado con los mejores materiales."
+            }
+            price={featuredProducts[0].price}
+            salePrice={
+              featuredProducts[0].originalPrice
+                ? featuredProducts[0].price
+                : undefined
+            }
+            features={[
+              "Materiales de alta calidad",
+              "Diseño exclusivo",
+              "Envío gratis en pedidos mayores a $150.000",
+            ]}
+          />
+          <FeaturedProduct
+            title={featuredProducts[1].name}
+            description={
+              featuredProducts[1].description ||
+              "Producto premium diseñado para tu comodidad."
+            }
+            price={featuredProducts[1].price}
+            salePrice={
+              featuredProducts[1].originalPrice
+                ? featuredProducts[1].price
+                : undefined
+            }
+            features={[
+              "Confección premium",
+              "Comodidad garantizada",
+              "Disponible en varios colores",
+            ]}
+            reversed
+          />
+        </>
+      )}
 
-      {/* Final CTA Section - Sección final de llamada a la acción */}
+      {/* Final CTA Section */}
       <section className="py-12 md:py-24 bg-gray-900 text-white">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 items-center">
@@ -235,9 +238,11 @@ export default async function Home() {
                 Descubre nuestra colección completa y encuentra tu estilo único
                 con prendas diseñadas para durar.
               </p>
-              <Button className="mt-6 bg-green-500 hover:bg-green-600">
-                Explorar Colección
-              </Button>
+              <Link href="/hombre">
+                <Button className="mt-6 bg-green-500 hover:bg-green-600">
+                  Explorar Colección
+                </Button>
+              </Link>
             </div>
             <div className="relative">
               <Image
